@@ -1,6 +1,8 @@
 # Identicon
 
-**TODO: Add description**
+Github like identicon generator in Elixir
+
+<!-- **TODO: Add description** -->
 
 ## Installation
 
