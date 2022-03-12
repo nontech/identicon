@@ -1,7 +1,11 @@
 defmodule Identicon do
   @moduledoc """
-  Documentation for `Identicon`.
+    Documentation for `Identicon`
   """
+
+  defmodule Image do
+    defstruct hex: nil, color: nil, grid: nil, pixel_map: nil
+  end
 
   def main(input) do
     input
@@ -11,37 +15,42 @@ defmodule Identicon do
     |> filter_odd_grids
     |> build_pixel_map
     |> draw_image
+    # TODO: Remove `Identicon.save_image/2`. And save the image in your database
     |> save_image(input)
   end
 
+  @doc """
+    Saves `provided_input_string.png` file in the directory
+  """
   def save_image(image, input) do
     File.write("#{input}.png", image)
   end
 
   @doc """
-    Draws the identicon.
+    Draws the identicon
 
     Experiencing problem with `:edg`
 
     Step 1: Add `:edg` as your dependency. (See- `https://github.com/erlang/egd`)
-      In your `mix.exs`
-        `
-          defp deps do
-            [
-              {:egd, github: "erlang/egd"}
-            ]
-          end
-        `
+
+    In your `mix.exs`
+
+      defp deps do
+        [
+          {:egd, github: "erlang/egd"}
+        ]
+      end
+
     Step 2: Install rebar, the erlang build tool, as this library depends on rebar.
-            Run `mix local.rebar --force` to install rebar (and rebar3).
-            (See - `https://www.reddit.com/r/elixir/comments/719tdf/erlang_egd_not_working_inside_elixir_on_windows/`)
+
+    Run `mix local.rebar --force` to install rebar (and rebar3). (See - `https://www.reddit.com/r/elixir/comments/719tdf/erlang_egd_not_working_inside_elixir_on_windows/`)
 
     Step 3: Re-open your terminal and run the following inside the project folder
-          `
-            mix deps.clean --all
-            mix deps.get
-            mix deps.compile
-          `
+
+      mix deps.clean --all
+      mix deps.get
+      mix deps.compile
+
   """
   def draw_image(%Identicon.Image{pixel_map: pixel_map, color: color}) do
     image = :egd.create(250, 250)
@@ -56,8 +65,11 @@ defmodule Identicon do
   end
 
   @doc """
-    Updates %Identicon.Image{} value of `:pixel_map` using the value of `:grid`
-    Note: The `:grid` has to be a list of tuples of integers. It cannot be `nil` or empty.
+    Updates `:pixel_map` of `Identicon.Image` using its value of `:grid`
+
+    Note:
+
+    The `:grid` has to be a list of tuples of integers. It cannot be `nil` or empty
 
     ## Examples
 
@@ -101,8 +113,13 @@ defmodule Identicon do
         iex> Identicon.filter_odd_grids(image)
         %Identicon.Image{color: nil, grid: [{28, 0}, {178, 1}, {178, 3}, {28, 4}], hex: nil}
   """
-  @spec filter_odd_grids(image :: %Identicon.Image{grid: [{integer(), integer()}, ...]}) ::
-          %Identicon.Image{grid: [{integer(), integer()}, ...]}
+  @spec filter_odd_grids(
+          image :: %Identicon.Image{
+            grid: [{integer(), integer()}, ...]
+          }
+        ) :: %Identicon.Image{
+          grid: [{integer(), integer()}, ...]
+        }
   def filter_odd_grids(%Identicon.Image{grid: grid} = image) do
     grid =
       grid
@@ -114,8 +131,11 @@ defmodule Identicon do
   end
 
   @doc """
-    Updates the %Identicon.Image{} value of `:grid` using value of `:hex`.
-    Note: The `:hex` has to be a list of numbers. It cannot be `nil` or empty.
+    Updates value of `:grid` of `Identicon.Image` using its value of `:hex`
+
+    Note:
+
+    The `:hex` has to be a list of numbers. It cannot be `nil` or empty
 
     ## Examples
 
@@ -123,8 +143,15 @@ defmodule Identicon do
         iex> Identicon.build_grid(image)
         %Identicon.Image{color: nil, grid: [{28, 0}, {178, 1}, {81, 2}, {178, 3}, {28, 4}], hex: [28, 178, 81]}
   """
-  @spec build_grid(image :: %Identicon.Image{hex: [integer(), ...], grid: nil}) ::
-          %Identicon.Image{hex: [integer(), ...], grid: [tuple(), ...]}
+  @spec build_grid(
+          image :: %Identicon.Image{
+            hex: [integer(), ...],
+            grid: nil
+          }
+        ) :: %Identicon.Image{
+          hex: [integer(), ...],
+          grid: [tuple(), ...]
+        }
   def build_grid(%Identicon.Image{hex: hex} = image) do
     grid =
       hex
@@ -137,11 +164,12 @@ defmodule Identicon do
   end
 
   @doc """
-    Mirrors the first and second element in a list.
-    Returns the mirrored list.
+    Mirrors the first and second element in a list
+
+    Returns the mirrored list
 
     ## Examples
-    #
+
         iex> Identicon.mirror_row([1, 2, 3])
         [1, 2, 3, 2, 1]
         iex> Identicon.mirror_row([1, 2, 3, 4, 5])
@@ -153,8 +181,11 @@ defmodule Identicon do
   end
 
   @doc """
-    Updates the %Identicon.Image{} value of `:color` using value of `:hex`.
-    Note: The `:hex` has to be a list of numbers. It cannot be `nil` or empty.
+    Updates `:color` of `Identicon.Image` using its value of `:hex`
+
+    Note:
+
+    The `:hex` has to be a list of numbers. It cannot be `nil` or empty
 
     ## Examples
 
@@ -169,18 +200,20 @@ defmodule Identicon do
   end
 
   @doc """
-    Returns the hash of any string.
+    Returns the hash of any string
 
     See - `https://elixir-lang.org/getting-started/erlang-libraries.html#the-crypto-module`
-    The :crypto module is part of the :crypto application that ships with Erlang.
-    This means you must list the :crypto application as an additional application in your project configuration.
-    To do this, edit your mix.exs file to include:
 
-    `
+    The `:crypto` module is part of the `:crypto` application that ships with Erlang
+
+    This means you must list the `:crypto` application as an additional application in your project configuration
+
+    To do this, edit your `mix.exs` file to include
+
       def application do
         [extra_applications: [:crypto]]
       end
-    `
+
     ## Examples
 
         iex> Identicon.hash_input("text")
