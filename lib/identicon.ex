@@ -23,7 +23,14 @@ defmodule Identicon do
     Saves `provided_input_string.png` file in the directory
   """
   def save_image(image, input) do
-    File.write("#{input}.png", image)
+    dir_path = "tmp/"
+
+    with :ok <- File.mkdir_p!(Path.dirname(dir_path)) do
+      File.write(dir_path <> "#{input}.png", image)
+    else
+      _ ->
+        IO.puts("Error while saving file")
+    end
   end
 
   @doc """
